@@ -1,0 +1,11 @@
+{
+  "exams": [
+    { "file": "exam-1.json", "label": "Mock Exam 1", "count": 65 },
+    { "file": "exam-2.json", "label": "Mock Exam 2 (partial)", "count": 63 },
+    { "file": "exam-3.json", "label": "Mock Exam 3 (partial)", "count": 63 },
+    { "file": "exam-4.json", "label": "Mock Exam 4 (partial)", "count": 63 },
+    { "file": "exam-5.json", "label": "Mock Exam 5", "count": 65 },
+    { "file": "exam-6.json", "label": "Mock Exam 6", "count": 65 },
+    { "file": "exam-7.json", "label": "Mock Exam 7 (partial)", "count": 37 }
+  ]
+}

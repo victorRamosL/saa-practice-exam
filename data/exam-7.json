@@ -1,0 +1,1075 @@
+[
+  {
+    "src_num": 47,
+    "q": "A company needs guaranteed Amazon EC2 capacity in three specific Availability Zones in a specific AWS Region for an upcoming event that will last 1 week. What should the company do to guarantee the EC2 capacity?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create an On-Demand Capacity Reservation that specifies the Region and three Availability Zones needed.",
+        "c": true,
+        "w": "An On-Demand Capacity Reservation that pins down both the Region and the three specific Availability Zones guarantees EC2 capacity exactly where the event needs it, for however long it is held."
+      },
+      {
+        "t": "Create an On-Demand Capacity Reservation that specifies the Region needed.",
+        "c": false,
+        "w": "Specifying only the Region leaves AWS free to place the reserved capacity in any Availability Zone in that Region, so it does not guarantee capacity in the three specific AZs the company needs."
+      },
+      {
+        "t": "Purchase Reserved Instances that specify the Region and three Availability Zones needed.",
+        "c": false,
+        "w": "Reserved Instances are a billing discount commitment (typically 1 or 3 years) and are not the right tool for a guaranteed 1-week reservation; even when zonal, RIs don't reserve capacity the way a Capacity Reservation does without the matching usage."
+      },
+      {
+        "t": "Purchase Reserved Instances that specify the Region needed.",
+        "c": false,
+        "w": "A Region-level Reserved Instance provides a billing discount but, like other RIs, is a long-term commitment and does not guarantee capacity in specific Availability Zones."
+      }
+    ],
+    "explain": "An On-Demand Capacity Reservation is a type of Amazon EC2 reservation that enables you to create and manage reserved capacity on Amazon EC2. With an On-Demand Capacity Reservation, you can specify the Region and Availability Zones where you want to reserve capacity, and the number of EC2 instances you want to reserve. This allows you to guarantee capacity in specific Availability Zones in a specific Region."
+  },
+  {
+    "src_num": 363,
+    "q": "A company is building a game system that needs to send unique events to separate leaderboard, matchmaking, and authentication services concurrently. The company needs an AWS event-driven system that guarantees the order of the events. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Amazon Simple Queue Service (Amazon SQS) FIFO queues",
+        "c": false,
+        "w": "SQS FIFO queues preserve order within a single queue but do not natively fan out one event to multiple independent consumers (leaderboard, matchmaking, authentication) at once."
+      },
+      {
+        "t": "Amazon Simple Notification Service (Amazon SNS) standard topics",
+        "c": false,
+        "w": "SNS standard topics can fan out to multiple subscribers concurrently but do not guarantee the order in which messages are delivered."
+      },
+      {
+        "t": "Amazon EventBridge event bus",
+        "c": false,
+        "w": "An EventBridge event bus can route events to multiple targets but does not guarantee strict ordering of delivery to those targets."
+      },
+      {
+        "t": "Amazon Simple Notification Service (Amazon SNS) FIFO topics",
+        "c": true,
+        "w": "SNS FIFO topics support fanout to multiple subscribers (including SQS FIFO queues) while preserving the order in which events were published, meeting both the concurrency and ordering requirements."
+      }
+    ],
+    "explain": "SNS FIFO also can send events or messages cocurrently to many subscribers while maintaining the order it receives. SNS fanout pattern is set in standard SNS which is commonly used to fan out events to large number of subscribers and usually for duplicated messages."
+  },
+  {
+    "src_num": 514,
+    "q": "A company is running a microservices application on Amazon EC2 instances. The company wants to migrate the application to an Amazon Elastic Kubernetes Service (Amazon EKS) cluster for scalability. The company must configure the Amazon EKS control plane with endpoint private access set to true and endpoint public access set to false to maintain security compliance. The company must also put the data plane in private subnets. However, the company has received error notifications because the node cannot join the cluster. Which solution will allow the node to join the cluster?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create interface VPC endpoints to allow nodes to access the control plane.",
+        "c": true,
+        "w": "With public access disabled, nodes in private subnets need a private network path to the API server; interface VPC endpoints for EKS let nodes reach the private control plane endpoint without needing public internet access."
+      },
+      {
+        "t": "Recreate nodes in the public subnet. Restrict security groups for EC2 nodes.",
+        "c": false,
+        "w": "Moving nodes to a public subnet contradicts the requirement to keep the data plane in private subnets and does not address the real problem, which is the lack of a private path to the control plane."
+      },
+      {
+        "t": "Grant the required permission in AWS Identity and Access Management (IAM) to the AmazonEKSNodeRole IAM role.",
+        "c": false,
+        "w": "The node IAM role permissions control what the node is authorized to do in the AWS API, not network connectivity to the control plane, so this would not fix a node-join networking failure caused by disabled public access."
+      },
+      {
+        "t": "Allow outbound traffic in the security group of the nodes.",
+        "c": false,
+        "w": "Outbound security group rules control traffic leaving the node, but without a route to the control plane (via a VPC endpoint), outbound access alone won't let the node reach the private EKS API endpoint."
+      }
+    ],
+    "explain": "When the Amazon EKS control plane has private access, nodes need to communicate with the control plane through interface VPC endpoints.\nCreating interface VPC endpoints ensures that the nodes in private subnets can securely communicate with the EKS control plane without the need for public IP addresses."
+  },
+  {
+    "src_num": 677,
+    "q": "A company is developing an application that will run on a production Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster has managed node groups that are provisioned with On-Demand Instances. The company needs a dedicated EKS cluster for development work. The company will use the development cluster infrequently to test the resiliency of the application. The EKS cluster must manage all the nodes. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create an Auto Scaling group that has a launch configuration that uses Spot Instances. Configure the user data to add the nodes to the EKS cluster.",
+        "c": false,
+        "w": "A self-managed Auto Scaling group with Spot Instances would not be a managed node group, so EKS would not be managing all the nodes as required."
+      },
+      {
+        "t": "Create a managed node group that contains only On-Demand Instances.",
+        "c": false,
+        "w": "Using only On-Demand Instances for an infrequently used dev/test cluster costs more than necessary since there's no need to pay full price for idle development capacity."
+      },
+      {
+        "t": "Create a managed node group that contains only Spot Instances.",
+        "c": false,
+        "w": "Using only Spot Instances risks interruption during resiliency testing and may not reliably provide nodes when the cluster is spun up for a test run."
+      },
+      {
+        "t": "Create two managed node groups. Provision one node group with On-Demand Instances. Provision the second node group with Spot Instances.",
+        "c": true,
+        "w": "Two managed node groups — one On-Demand for baseline reliability and one Spot for cost savings — keeps EKS managing all nodes while minimizing cost for infrequent development and resiliency testing use."
+      }
+    ],
+    "explain": ""
+  },
+  {
+    "src_num": 573,
+    "q": "A company wants to use an event-driven programming model with AWS Lambda. The company wants to reduce startup latency for Lambda functions that run on Java 11. The company does not have strict latency requirements for the applications. The company wants to reduce cold starts and outlier latencies when a function scales up. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Configure Lambda provisioned concurrency.",
+        "c": false,
+        "w": "Provisioned concurrency keeps execution environments warm at all times, which reduces cold starts but costs money continuously even when the function isn't invoked, making it less cost-effective than SnapStart."
+      },
+      {
+        "t": "Increase the timeout of the Lambda functions.",
+        "c": false,
+        "w": "Increasing the timeout only gives a function more time to run; it does not reduce the cold-start initialization time that causes startup latency."
+      },
+      {
+        "t": "Configure Lambda SnapStart.",
+        "c": true,
+        "w": "Lambda SnapStart pre-initializes a Firecracker microVM snapshot for Java functions and resumes from it on invocation, cutting cold-start latency without the ongoing cost of keeping environments warm."
+      },
+      {
+        "t": "Increase the memory of the Lambda functions.",
+        "c": false,
+        "w": "Increasing memory can speed up code execution but does not specifically target or reduce the JVM initialization overhead that causes Java cold starts."
+      }
+    ],
+    "explain": "Lambda Cold Start:\nWhen a Lambda function is invoked, it may take a bit of time for the system to set up everything needed to run the function. This initial setup time is called a \"cold start.\" Cold starts can add some delay, especially if the function hasn't been used recently.\nLambda SnapStart:\nSnapStart is a feature in AWS Lambda designed to make these cold starts faster, specifically for functions written in Java. Instead of starting from scratch every time a function is called, SnapStart pre-warms the environment. It's like getting things ready in advance so that when your function is called, it can start quickly without much delay."
+  },
+  {
+    "src_num": 444,
+    "q": "A company has hired a solutions architect to design a reliable architecture for its application. The application consists of one Amazon RDS DB instance and two manually provisioned Amazon EC2 instances that run web servers. The EC2 instances are located in a single Availability Zone. An employee recently deleted the DB instance, and the application was unavailable for 24 hours as a result. The company is concerned with the overall reliability of its environment. What should the solutions architect do to maximize reliability of the application's infrastructure?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Delete one EC2 instance and enable termination protection on the other EC2 instance. Update the DB instance to be Multi-AZ, and enable deletion protection.",
+        "c": false,
+        "w": "Deleting one EC2 instance reduces redundancy instead of increasing it, and termination protection on a single instance does nothing to protect against an Availability Zone failure."
+      },
+      {
+        "t": "Update the DB instance to be Multi-AZ, and enable deletion protection. Place the EC2 instances behind an Application Load Balancer, and run them in an EC2 Auto Scaling group across multiple Availability Zones.",
+        "c": true,
+        "w": "Making the DB instance Multi-AZ with deletion protection removes the single point of failure for the database and prevents accidental deletion, while an ALB plus a multi-AZ Auto Scaling group removes the single-AZ risk for the web tier."
+      },
+      {
+        "t": "Place the EC2 instances in an EC2 Auto Scaling group that has multiple subnets located in multiple Availability Zones. Use Spot Instances instead of On-Demand Instances. Set up Amazon CloudWatch alarms to monitor the health of the instances Update the DB instance to be Multi-AZ, and enable deletion protection.",
+        "c": false,
+        "w": "Using Spot Instances for a production web tier risks interruption at any time, which undermines the reliability goal even though the multi-AZ and deletion-protection parts are reasonable."
+      },
+      {
+        "t": "Create an additional DB instance along with an Amazon API Gateway and an AWS Lambda function. Configure the application to invoke the Lambda function through API Gateway. Have the Lambda function write the data to the two DB instances.",
+        "c": false,
+        "w": "Writing to two separate DB instances via Lambda is an unnecessary custom data-duplication scheme that adds complexity and consistency risk instead of using RDS's built-in Multi-AZ failover."
+      }
+    ],
+    "explain": "Multi-AZ RDS Instance: By updating the DB instance to be Multi-AZ, you ensure that there is a standby replica in a different Availability Zone, providing high availability and automatic failover in case of a failure in the primary zone.\n\nDeletion Protection: Enabling deletion protection for the DB instance helps prevent accidental deletion, reducing the risk of downtime caused by human error."
+  },
+  {
+    "src_num": 243,
+    "q": "A medical research lab produces data that is related to a new study. The lab wants to make the data available with minimum latency to clinics across the country for their on-premises, file-based applications. The data files are stored in an Amazon S3 bucket that has read-only permissions for each clinic. What should a solutions architect recommend to meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Migrate the files to each clinic’s on-premises applications by using AWS DataSync for processing.",
+        "c": false,
+        "w": "AWS DataSync performs a one-time or scheduled bulk data transfer/migration; it does not provide clinics with ongoing, low-latency, file-based access to data that continues to be read over time."
+      },
+      {
+        "t": "Deploy an AWS Storage Gateway volume gateway as a virtual machine (VM) on premises at each clinic.",
+        "c": false,
+        "w": "A Volume Gateway presents block storage (iSCSI volumes), not a file-based interface, so it would not integrate with on-premises file-based applications without extra reformatting."
+      },
+      {
+        "t": "Attach an Amazon Elastic File System (Amazon EFS) file system to each clinic’s on-premises servers.",
+        "c": false,
+        "w": "Amazon EFS is a file system that is accessed over the AWS network (via NFS mount targets inside a VPC); it cannot simply be attached directly to on-premises servers across the internet with low latency."
+      },
+      {
+        "t": "Deploy an AWS Storage Gateway file gateway as a virtual machine (VM) on premises at each clinic",
+        "c": true,
+        "w": "An AWS Storage Gateway file gateway presents the S3 bucket as an NFS/SMB file share and caches frequently accessed data locally, giving each clinic low-latency, read-only, file-based access to the files."
+      }
+    ],
+    "explain": "This option provides a way to present an S3 bucket as a file system to on-premises applications. Each clinic can deploy an AWS Storage Gateway file gateway as a VM on-premises, allowing them to access the data in the S3 bucket as if it were local files. It minimizes latency because the data is cached locally, and read-only permissions can be controlled at the S3 bucket level."
+  },
+  {
+    "src_num": 282,
+    "q": "A company runs a web application that is deployed on Amazon EC2 instances in the private subnet of a VPC. An Application Load Balancer (ALB) that extends across the public subnets directs web traffic to the EC2 instances. The company wants to implement new security measures to restrict inbound traffic from the ALB to the EC2 instances while preventing access from any other source inside or outside the private subnet of the EC2 instances. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Configure the security group for the ALB to allow any TCP traffic on any port.",
+        "c": false,
+        "w": "Allowing any TCP traffic on any port into the ALB's security group is overly permissive and does not restrict inbound traffic appropriately; it also does nothing to restrict the EC2 instances themselves."
+      },
+      {
+        "t": "Configure the security group for the EC2 instances to only allow traffic that comes from the security group for the ALB.",
+        "c": true,
+        "w": "Referencing the ALB's security group as the allowed source in the EC2 instances' security group means only traffic that has passed through the ALB is permitted, meeting the requirement to restrict inbound traffic to just the ALB."
+      },
+      {
+        "t": "Move the EC2 instances into the public subnet. Give the EC2 instances a set of Elastic IP addresses.",
+        "c": false,
+        "w": "Moving the instances to a public subnet with Elastic IPs directly exposes them to the internet, which is the opposite of restricting access to only the ALB."
+      },
+      {
+        "t": "Configure a route in a route table to direct traffic from the internet to the private IP addresses of the EC2 instances.",
+        "c": false,
+        "w": "Routing internet traffic directly to the private IP addresses of the EC2 instances would bypass the ALB entirely and expose the instances to traffic from any source."
+      }
+    ],
+    "explain": "Security groups act as virtual firewalls for EC2 instances. By configuring the security group for the EC2 instances to only allow traffic from the security group associated with the ALB, you can control and restrict inbound traffic effectively.\n\nWhen you specify a security group as the source in the inbound rules of another security group, you allow traffic only from instances that are members of that source security group. In this case, you can allow traffic only from the ALB, ensuring that traffic is restricted to the necessary source."
+  },
+  {
+    "src_num": 585,
+    "q": "A solutions architect is designing a disaster recovery (DR) strategy to provide Amazon EC2 capacity in a failover AWS Region. Business requirements state that the DR strategy must meet capacity in the failover Region. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Purchase On-Demand Instances in the failover Region.",
+        "c": false,
+        "w": "On-Demand Instances are launched from whatever capacity is available at the time; they are not reserved ahead of time, so there's no guarantee that capacity will exist in the failover Region when a disaster occurs."
+      },
+      {
+        "t": "Purchase a Capacity Reservation in the failover Region.",
+        "c": true,
+        "w": "A Capacity Reservation reserves EC2 capacity in the target Region (and optionally AZ) ahead of time, independent of any billing discount, which directly guarantees capacity will be available for failover."
+      },
+      {
+        "t": "Purchase regional Reserved Instances in the failover Region.",
+        "c": false,
+        "w": "Regional Reserved Instances provide a billing discount for usage but do not reserve physical capacity; they don't guarantee that instances can actually be launched during a regional capacity crunch."
+      },
+      {
+        "t": "Purchase an EC2 Savings Plan in the failover Region.",
+        "c": false,
+        "w": "A Savings Plan is a pricing/billing commitment that lowers compute costs; it has no effect on whether physical EC2 capacity is available in the failover Region."
+      }
+    ],
+    "explain": "A Capacity Reservation allows you to reserve a specific amount of EC2 instance capacity in a given region without purchasing specific instances. This reserved capacity is dedicated to your account and can be utilized for launching instances when needed. Capacity Reservations offer flexibility, allowing you to launch different instance types and sizes within the reserved capacity."
+  },
+  {
+    "src_num": 394,
+    "q": "A company is running a multi-tier ecommerce web application in the AWS Cloud. The application runs on Amazon EC2 instances with an Amazon RDS for MySQL Multi-AZ DB instance. Amazon RDS is configured with the latest generation DB instance with 2,000 GB of storage in a General Purpose SSD (gp3) Amazon Elastic Block Store (Amazon EBS) volume. The database performance affects the application during periods of high demand. A database administrator analyzes the logs in Amazon CloudWatch Logs and discovers that the application performance always degrades when the number of read and write IOPS is higher than 20,000. What should a solutions architect do to improve the application performance?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Replace the volume with a Provisioned IOPS SSD (io2) volume.",
+        "c": true,
+        "w": "An io2 Provisioned IOPS volume lets you provision guaranteed IOPS above what gp3's baseline/burst model reliably sustains, directly addressing the bottleneck once demand exceeds 20,000 IOPS."
+      },
+      {
+        "t": "Replace the 2,000 GB gp3 volume with two 1,000 GB gp3 volumes.",
+        "c": false,
+        "w": "Splitting one 2,000 GB gp3 volume into two 1,000 GB gp3 volumes doesn't change the per-volume IOPS ceiling in a way that reliably supports sustained demand above 20,000 IOPS for a single database."
+      },
+      {
+        "t": "Replace the volume with a magnetic volume.",
+        "c": false,
+        "w": "Magnetic (standard) volumes have far lower and less consistent IOPS performance than SSD-based volumes, so switching to magnetic would make performance worse, not better."
+      },
+      {
+        "t": "Increase the number of IOPS on the gp3 volume.",
+        "c": false,
+        "w": "gp3 IOPS can be increased, but gp3's maximum provisioned IOPS per volume is capped well below what io2 supports, so simply raising gp3 IOPS may not be sufficient or as performant for this sustained high-IOPS workload."
+      }
+    ],
+    "explain": "io2 volumes are designed for high-performance, low-latency applications such as databases.\nProvisioned IOPS allows you to specify the amount of IOPS the volume needs, ensuring consistent performance.\nFor applications with high demand and where consistent performance is crucial, io2 volumes provide better control over IOPS compared to gp3 volumes."
+  },
+  {
+    "src_num": 385,
+    "q": "A solutions architect is creating a new VPC design. There are two public subnets for the load balancer, two private subnets for web servers, and two private subnets for MySQL. The web servers use only HTTPS. The solutions architect has already created a security group for the load balancer allowing port 443 from 0.0.0.0/0. Company policy requires that each resource has the least access required to still be able to perform its tasks. Which additional configuration strategy should the solutions architect use to meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create a security group for the web servers and allow port 443 from 0.0.0.0/0. Create a security group for the MySQL servers and allow port 3306 from the web servers security group.",
+        "c": false,
+        "w": "Allowing port 443 from 0.0.0.0/0 directly on the web server security group lets traffic reach the web servers without going through the load balancer, violating least privilege even though the DB rule is fine."
+      },
+      {
+        "t": "Create a network ACL for the web servers and allow port 443 from the load balancer. Create a network ACL for the MySQL servers and allow port 3306 from the web servers security group.",
+        "c": false,
+        "w": "Network ACLs are stateless and operate at the subnet level for all instances in the subnet; they are a coarser, less precise control than security groups for enforcing least privilege between specific tiers."
+      },
+      {
+        "t": "Create a network ACL for the web servers and allow port 443 from 0.0.0.0/0. Create a network ACL for the MySQL servers and allow port 3306 from the web servers security group.",
+        "c": false,
+        "w": "A network ACL allowing 0.0.0.0/0 on the web tier doesn't restrict traffic to only come from the load balancer and is a cruder, subnet-wide control not meant for fine-grained least-privilege access."
+      },
+      {
+        "t": "Create a security group for the web servers and allow port 443 from the load balancer. Create a security group for the MySQL servers and allow port 3306 from the web servers security group.",
+        "c": true,
+        "w": "Allowing port 443 on the web server security group only from the load balancer's security group, and port 3306 on the MySQL security group only from the web server's security group, grants each tier exactly the access it needs and nothing more."
+      }
+    ],
+    "explain": ""
+  },
+  {
+    "src_num": 285,
+    "q": "A company hosts its static website by using Amazon S3. The company wants to add a contact form to its webpage. The contact form will have dynamic server-side components for users to input their name, email address, phone number, and user message. The company anticipates that there will be fewer than 100 site visits each month. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create a t2.micro Amazon EC2 instance. Deploy a LAMP (Linux, Apache, MySQL, PHP/Perl/Python) stack to host the webpage. Use clientside scripting to build the contact form. Integrate the form with Amazon WorkMail.",
+        "c": false,
+        "w": "Running a LAMP stack on an EC2 instance means paying for and managing a server continuously even though traffic is fewer than 100 visits a month, and WorkMail is a mailbox service, not designed for processing web form submissions."
+      },
+      {
+        "t": "Create an Amazon API Gateway endpoint with an AWS Lambda backend that makes a call to Amazon Simple Email Service (Amazon SES).",
+        "c": true,
+        "w": "API Gateway and Lambda scale to zero and charge only per request, and SES is built for sending transactional email like form notifications, making this the cheapest fit for very low, sporadic traffic."
+      },
+      {
+        "t": "Host a dynamic contact form page in Amazon Elastic Container Service (Amazon ECS). Set up Amazon Simple Email Service (Amazon SES) to connect to any third-party email provider.",
+        "c": false,
+        "w": "Running a dynamic form page in ECS still requires provisioning and paying for container compute capacity, which is unnecessary overhead for fewer than 100 visits per month."
+      },
+      {
+        "t": "Convert the static webpage to dynamic by deploying Amazon Lightsail. Use client-side scripting to build the contact form. Integrate the form with Amazon WorkMail.",
+        "c": false,
+        "w": "Amazon Lightsail is a fixed-price virtual server; paying for a running instance is unnecessary and less cost-effective than a pay-per-request serverless approach for such low traffic."
+      }
+    ],
+    "explain": "Amazon API Gateway: Acts as the endpoint for the contact form. It enables you to create, publish, maintain, monitor, and secure APIs at any scale.\nAWS Lambda: Serves as the backend for handling the dynamic components of the contact form. Lambda allows you to run code without provisioning or managing servers.\nAmazon Simple Email Service (Amazon SES): Can be used to send emails, making it suitable for handling the form submissions.\nThis serverless architecture eliminates the need for managing and maintaining infrastructure, and costs are based on actual usage, making it cost-effective for low-traffic scenarios."
+  },
+  {
+    "src_num": 527,
+    "q": "A company has a regional subscription-based streaming service that runs in a single AWS Region. The architecture consists of web servers and application servers on Amazon EC2 instances. The EC2 instances are in Auto Scaling groups behind Elastic Load Balancers. The architecture includes an Amazon Aurora global database cluster that extends across multiple Availability Zones. The company wants to expand globally and to ensure that its application has minimal downtime. Which solution will provide the MOST fault tolerance?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Deploy the web tier and the application tier to a second Region. Use an Amazon Aurora global database to deploy the database in the primary Region and the second Region. Use Amazon Route 53 health checks with a failover routing policy to the second Region. Promote the secondary to primary as needed.",
+        "c": true,
+        "w": "An Aurora global database replicates data to a secondary Region with very low replication lag and is built specifically for fast cross-region promotion, and combined with Route 53 health-check failover, it maximizes fault tolerance for the whole stack."
+      },
+      {
+        "t": "Deploy the web tier and the application tier to a second Region. Create an Aurora PostgreSQL database in the second Region. Use AWS Database Migration Service (AWS DMS) to replicate the primary database to the second Region. Use Amazon Route 53 health checks with a failover routing policy to the second Region.",
+        "c": false,
+        "w": "Using AWS DMS to replicate into a different engine (Aurora PostgreSQL) introduces DMS replication lag and operational complexity that a native Aurora global database avoids, making this a less fault-tolerant and more complex approach."
+      },
+      {
+        "t": "Deploy the web tier and the application tier to a second Region. Add an Aurora PostgreSQL cross-Region Aurora Replica in the second Region. Use Amazon Route 53 health checks with a failover routing policy to the second Region. Promote the secondary to primary as needed.",
+        "c": false,
+        "w": "A cross-Region Aurora Replica on a different engine still requires manual promotion with more replication lag than an Aurora global database, and mismatched engines add migration/compatibility complexity."
+      },
+      {
+        "t": "Extend the Auto Scaling groups for the web tier and the application tier to deploy instances in Availability Zones in a second Region. Use an Aurora global database to deploy the database in the primary Region and the second Region. Use Amazon Route 53 health checks with a failover routing policy to the second Region.",
+        "c": false,
+        "w": "EC2 Auto Scaling groups are scoped to a single Region, so you cannot simply 'extend' one Region's Auto Scaling group with Availability Zones that belong to a different Region."
+      }
+    ],
+    "explain": "An Aurora global database allows you to replicate your database across multiple AWS Regions. This ensures that you have a read-capable secondary database in the second Region, providing low-latency access to the database.\nAmazon Route 53 can be configured with health checks to monitor the health of the web and application tiers in both Regions. In the event of a failure in the primary Region, Route 53 can automatically route traffic to the healthy resources in the second Region."
+  },
+  {
+    "src_num": 544,
+    "q": "A retail company uses a regional Amazon API Gateway API for its public REST APIs. The API Gateway endpoint is a custom domain name that points to an Amazon Route 53 alias record. A solutions architect needs to create a solution that has minimal effects on customers and minimal data loss to release the new version of APIs. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create a new API Gateway endpoint with a new version of the API in OpenAPI YAML file format. Use the import-to-update operation in merge mode into the API in API Gateway. Deploy the new version of the API to the production stage.",
+        "c": false,
+        "w": "Importing a new API definition in merge mode and deploying straight to production pushes all customers onto the new version at once with no gradual validation, risking broader impact if something is wrong."
+      },
+      {
+        "t": "Create a canary release deployment stage for API Gateway. Deploy the latest API version. Point an appropriate percentage of traffic to the canary stage. After API verification, promote the canary stage to the production stage.",
+        "c": true,
+        "w": "A canary release stage routes a small, configurable percentage of traffic to the new API version while the rest continues on the stable version, letting the team verify the new version with minimal customer impact before a full promotion."
+      },
+      {
+        "t": "Create a new API Gateway endpoint with a new version of the API in OpenAPI JSON file format. Use the import-to-update operation in overwrite mode into the API in API Gateway. Deploy the new version of the API to the production stage.",
+        "c": false,
+        "w": "Import-to-update in overwrite mode discards existing API configuration and deploys straight to production, again exposing all customers immediately to any issues in the new version."
+      },
+      {
+        "t": "Create a new API Gateway endpoint with new versions of the API definitions. Create a custom domain name for the new API Gateway API. Point the Route 53 alias record to the new API Gateway API custom domain name.",
+        "c": false,
+        "w": "Creating a brand-new API Gateway endpoint and repointing the Route 53 alias is a hard cutover that can cause downtime or data loss during the DNS switch, rather than a gradual, low-risk rollout."
+      }
+    ],
+    "explain": "A canary release deployment is a strategy in software development and release management where a new version of a software application or service is gradually rolled out to a small subset of users before making it available to the entire user base."
+  },
+  {
+    "src_num": 607,
+    "q": "A company has migrated a two-tier application from its on-premises data center to the AWS Cloud. The data tier is a Multi-AZ deployment of Amazon RDS for Oracle with 12 TB of General Purpose SSD Amazon Elastic Block Store (Amazon EBS) storage. The application is designed to process and store documents in the database as binary large objects (blobs) with an average document size of 6 MB. The database size has grown over time, reducing the performance and increasing the cost of storage. The company must improve the database performance and needs a solution that is highly available and resilient. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Reduce the RDS DB instance size. Increase the storage capacity to 24 TiB. Change the storage type to Magnetic.",
+        "c": false,
+        "w": "Reducing the RDS instance size while increasing storage to 24 TiB and switching to Magnetic storage both degrades compute capacity and uses a storage type with much lower and less consistent performance, making things worse."
+      },
+      {
+        "t": "Increase the RDS DB instance size. Increase the storage capacity to 24 TiChange the storage type to Provisioned IOPS.",
+        "c": false,
+        "w": "Increasing the RDS instance size and switching to Provisioned IOPS storage raises cost significantly without addressing the root problem, which is storing large blobs inside the relational database instead of object storage."
+      },
+      {
+        "t": "Create an Amazon S3 bucket. Update the application to store documents in the S3 bucket. Store the object metadata in the existing database.",
+        "c": true,
+        "w": "Moving the blob data to S3 and keeping only metadata in the database removes the bulk of the storage burden from RDS, improving database performance and letting S3's cheap, durable, highly available storage handle the large objects cost-effectively."
+      },
+      {
+        "t": "Create an Amazon DynamoDB table. Update the application to use DynamoDB. Use AWS Database Migration Service (AWS DMS) to migrate data from the Oracle database to DynamoDB.",
+        "c": false,
+        "w": "DynamoDB has item size limits (400 KB) that make it a poor fit for ~6 MB documents, and migrating via DMS to a different database model adds significant complexity that isn't needed for storing large blobs."
+      }
+    ],
+    "explain": "Amazon S3 is highly scalable, durable, and cost-effective for storing objects, making it well-suited for binary large objects (blobs) such as documents. It provides low-latency access and is designed to handle large volumes of data."
+  },
+  {
+    "src_num": 415,
+    "q": "A company is storing petabytes of data in Amazon S3 Standard. The data is stored in multiple S3 buckets and is accessed with varying frequency. The company does not know access patterns for all the data. The company needs to implement a solution for each S3 bucket to optimize the cost of S3 usage. Which solution will meet these requirements with the MOST operational efficiency?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create an S3 Lifecycle configuration with a rule to transition the objects in the S3 bucket to S3 One Zone-Infrequent Access (S3 One ZoneIA).",
+        "c": false,
+        "w": "S3 One Zone-IA stores data in only one Availability Zone, so it carries greater durability/availability risk, and it does not automatically adapt to unknown or changing access patterns."
+      },
+      {
+        "t": "Create an S3 Lifecycle configuration with a rule to transition the objects in the S3 bucket to S3 Intelligent-Tiering.",
+        "c": true,
+        "w": "S3 Intelligent-Tiering automatically monitors access patterns and moves objects between access tiers without any manual rules per object, which is exactly suited to data with unknown or varying access frequency."
+      },
+      {
+        "t": "Use the S3 storage class analysis tool to determine the correct tier for each object in the S3 bucket. Move each object to the identified storage tier.",
+        "c": false,
+        "w": "Manually running storage class analysis and moving each object to the 'correct' tier requires ongoing manual effort and re-evaluation as access patterns change, which is far less operationally efficient than an automated tiering rule."
+      },
+      {
+        "t": "Create an S3 Lifecycle configuration with a rule to transition the objects in the S3 bucket to S3 Glacier Instant Retrieval.",
+        "c": false,
+        "w": "S3 Glacier Instant Retrieval assumes infrequent access with fast retrieval for archival-like data; it isn't designed to automatically adapt across tiers for data whose access patterns are unknown and may still be frequent."
+      }
+    ],
+    "explain": "S3 Intelligent-Tiering: This storage class is designed to automatically and dynamically move objects between two access tiers – frequent and infrequent access – based on changing access patterns. It is a good fit for data with unknown or changing access patterns. It provides cost savings compared to S3 Standard while maintaining low-latency access to frequently accessed objects."
+  },
+  {
+    "src_num": 681,
+    "q": "A company uses Amazon EC2 instances and stores data on Amazon Elastic Block Store (Amazon EBS) volumes. The company must ensure that all data is encrypted at rest by using AWS Key Management Service (AWS KMS). The company must be able to control rotation of the encryption keys. Which solution will meet these requirements with the LEAST operational overhead?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Use an AWS managed key to encrypt the EBS volumes. Use the key to configure automatic key rotation.",
+        "c": false,
+        "w": "AWS managed keys do support automatic rotation, but the company does not control the rotation schedule or process for these keys — AWS manages that policy, not the customer."
+      },
+      {
+        "t": "Use an AWS owned key to encrypt the EBS volumes.",
+        "c": false,
+        "w": "AWS owned keys are not visible or manageable by the customer at all; the customer has no ability to control rotation or any other aspect of these keys."
+      },
+      {
+        "t": "Create an external KMS key with imported key material. Use the key to encrypt the EBS volumes.",
+        "c": false,
+        "w": "An external KMS key with imported key material does not support AWS KMS automatic key rotation; rotating it requires manually importing new key material and tracking key versions, which increases operational overhead."
+      },
+      {
+        "t": "Create a customer managed key. Use the key to encrypt the EBS volumes.",
+        "c": true,
+        "w": "A customer managed key is fully controlled by the customer, including the ability to enable and configure automatic key rotation on a schedule the customer chooses, satisfying both the encryption and rotation-control requirements with minimal operational effort."
+      }
+    ],
+    "explain": ""
+  },
+  {
+    "src_num": 463,
+    "q": "An IoT company is releasing a mattress that has sensors to collect data about a user’s sleep. The sensors will send data to an Amazon S3 bucket. The sensors collect approximately 2 MB of data every night for each mattress. The company must process and summarize the data for each mattress. The results need to be available as soon as possible. Data processing will require 1 GB of memory and will finish within 30 seconds. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Use Amazon EMR with an Apache Spark script",
+        "c": false,
+        "w": "Amazon EMR with Spark is built for large-scale distributed big-data processing; provisioning and running a cluster for a 2 MB/night, 30-second job is far more operational overhead and cost than necessary."
+      },
+      {
+        "t": "Use AWS Glue with a Scala job",
+        "c": false,
+        "w": "AWS Glue is priced and designed around ETL jobs with a minimum billing duration and cluster startup time; a Scala job on Glue is overkill and costlier for such a small, short-lived task."
+      },
+      {
+        "t": "Use AWS Lambda with a Python script",
+        "c": true,
+        "w": "AWS Lambda's pay-per-invocation, sub-second billing model fits a job that needs only 1 GB of memory and finishes in 30 seconds, and it can be triggered directly by the S3 upload event with no infrastructure to manage."
+      },
+      {
+        "t": "Use AWS Glue with a PySpark job",
+        "c": false,
+        "w": "AWS Glue with PySpark still carries Glue's job startup and minimum billing overhead, making it less cost-effective than Lambda for a short, lightweight per-file processing task."
+      }
+    ],
+    "explain": "AWS Lambda is a serverless compute service that allows you to run code without provisioning or managing servers. It automatically scales with the number of requests, making it well-suited for event-driven workloads like processing data from IoT devices.\n\nPython is a lightweight and efficient language for data processing tasks.\n\nLambda allows you to execute code in response to events, such as data arriving in the S3 bucket."
+  },
+  {
+    "src_num": 551,
+    "q": "A company has a financial application that produces reports. The reports average 50 KB in size and are stored in Amazon S3. The reports are frequently accessed during the first week after production and must be stored for several years. The reports must be retrievable within 6 hours. Which solution meets these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Use S3 Standard. Use an S3 Lifecycle rule to transition the reports to S3 Glacier after 7 days.",
+        "c": true,
+        "w": "S3 Glacier Flexible Retrieval supports retrieval within a few hours (standard retrieval is typically 3-5 hours), which fits inside the 6-hour requirement while costing much less than keeping data in Standard or Standard-IA for years."
+      },
+      {
+        "t": "Use S3 Standard. Use an S3 Lifecycle rule to transition the reports to S3 Glacier Deep Archive after 7 days.",
+        "c": false,
+        "w": "S3 Glacier Deep Archive's standard retrieval time is around 12 hours, which exceeds the 6-hour retrieval requirement, so it would not reliably meet the SLA even though it is cheaper to store."
+      },
+      {
+        "t": "Use S3 Intelligent-Tiering. Configure S3 Intelligent-Tiering to transition the reports to S3 Standard-Infrequent Access (S3 Standard-IA) and S3 Glacier.",
+        "c": false,
+        "w": "S3 Intelligent-Tiering adds monitoring overhead and automatic tier movement that isn't needed here since the access pattern (heavy use in week one, then rarely) is already known and predictable."
+      },
+      {
+        "t": "Use S3 Standard. Use an S3 Lifecycle rule to transition the reports to S3 Standard-Infrequent Access (S3 Standard-IA) after 7 days.",
+        "c": false,
+        "w": "S3 Standard-IA is well suited to data accessed less frequently but still needed with millisecond access; for years of long-term storage after the first week, Glacier's much lower storage cost is more cost-effective while still meeting the 6-hour retrieval window."
+      }
+    ],
+    "explain": "After the initial period, using an S3 Lifecycle rule to transition the reports to the S3 Glacier storage class is a cost-effective approach. Glacier is designed for long-term archival storage with lower storage costs compared to S3 Standard."
+  },
+  {
+    "src_num": 50,
+    "q": "A company has a production workload that runs on 1,000 Amazon EC2 Linux instances. The workload is powered by third-party software. The company needs to patch the third-party software on all EC2 instances as quickly as possible to remediate a critical security vulnerability. What should a solutions architect do to meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Schedule an AWS Systems Manager maintenance window to apply the patch to all EC2 instances.",
+        "c": false,
+        "w": "A maintenance window is built around scheduling tasks to run at a defined time in the future; it is not the fastest way to push an urgent, one-time command across 1,000 instances right now."
+      },
+      {
+        "t": "Create an AWS Lambda function to apply the patch to all EC2 instances.",
+        "c": false,
+        "w": "AWS Lambda functions run in the Lambda execution environment, not inside the target EC2 instances' operating systems, so Lambda cannot directly apply an OS-level software patch on those instances."
+      },
+      {
+        "t": "Use AWS Systems Manager Run Command to run a custom command that applies the patch to all EC2 instances.",
+        "c": true,
+        "w": "AWS Systems Manager Run Command lets an administrator execute an arbitrary command or script (such as a patch installer) across many instances immediately and in parallel, which is the fastest way to remediate the vulnerability."
+      },
+      {
+        "t": "Configure AWS Systems Manager Patch Manager to apply the patch to all EC2 instances.",
+        "c": false,
+        "w": "AWS Systems Manager Patch Manager automates patching of the OS and certain AWS-published software baselines; it is not designed to deploy a patch for arbitrary third-party software."
+      }
+    ],
+    "explain": "AWS Systems Manager Run Command allows the company to run commands or scripts on multiple EC2 instances. By using Run Command, the company can quickly and easily apply the patch to all 1,000 EC2 instances to remediate the security vulnerability.\n\nCreating an AWS Lambda function to apply the patch to all EC2 instances would not be a suitable solution, as Lambda functions are not designed to run on EC2 instances. Configuring AWS Systems Manager Patch Manager to apply the patch to all EC2 instances would not be a suitable solution, as Patch Manager is not designed to apply third-party software patches. Scheduling an AWS Systems Manager maintenance window to apply the patch to all EC2 instances would not be a suitable solution, as maintenance windows are not designed to apply patches to third-party software."
+  },
+  {
+    "src_num": 495,
+    "q": "A company is conducting an internal audit. The company wants to ensure that the data in an Amazon S3 bucket that is associated with the company’s AWS Lake Formation data lake does not contain sensitive customer or employee data. The company wants to discover personally identifiable information (PII) or financial information, including passport numbers and credit card numbers. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Configure AWS Audit Manager on the account. Select the Payment Card Industry Data Security Standards (PCI DSS) for auditing.",
+        "c": false,
+        "w": "AWS Audit Manager assesses compliance against frameworks like PCI DSS by collecting evidence of controls; it does not scan object content in S3 to find PII or financial data strings."
+      },
+      {
+        "t": "Configure Amazon Macie to run a data discovery job that uses managed identifiers for the required data types.",
+        "c": true,
+        "w": "Amazon Macie uses machine learning and managed data identifiers specifically built to recognize PII and financial data types (like passport and credit card numbers) within S3 objects, directly meeting the discovery requirement."
+      },
+      {
+        "t": "Use Amazon S3 Select to run a report across the S3 bucket.",
+        "c": false,
+        "w": "Amazon S3 Select lets you run SQL-like queries against structured data (CSV, JSON, Parquet) within an object; it is not a sensitive-data discovery and classification tool."
+      },
+      {
+        "t": "Configure Amazon S3 Inventory on the S3 bucket Configure Amazon Athena to query the inventory.",
+        "c": false,
+        "w": "S3 Inventory lists object metadata (like size and storage class), and Athena can query that inventory, but neither inspects object content for sensitive data patterns."
+      }
+    ],
+    "explain": "Amazon Macie is a security service that uses machine learning to automatically discover, classify, and protect sensitive data like PII or financial information.\nBy configuring Amazon Macie to run a data discovery job, you can use managed identifiers to search for specific types of sensitive data within the S3 bucket."
+  },
+  {
+    "src_num": 594,
+    "q": "A company plans to migrate to AWS and use Amazon EC2 On-Demand Instances for its application. During the migration testing phase, a technical team observes that the application takes a long time to launch and load memory to become fully productive. Which solution will reduce the launch time of the application during the next testing phase?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Launch EC2 Spot Instances to support the application and to scale the application so it is available during the next testing phase.",
+        "c": false,
+        "w": "Using Spot Instances addresses cost and scaling but does nothing to reduce the time it takes for an instance to boot and load the application into memory."
+      },
+      {
+        "t": "Launch EC2 On-Demand Instances with Capacity Reservations. Start additional EC2 instances during the next testing phase.",
+        "c": false,
+        "w": "Capacity Reservations guarantee that capacity is available, but each new instance launched from them still goes through a full cold boot and memory warm-up, so launch time is unchanged."
+      },
+      {
+        "t": "Launch the EC2 On-Demand Instances with hibernation turned on. Configure EC2 Auto Scaling warm pools during the next testing phase.",
+        "c": true,
+        "w": "Hibernation preserves the in-memory state of an instance to disk so it can resume quickly instead of booting from scratch, and EC2 Auto Scaling warm pools keep pre-initialized instances ready, directly cutting the time to become fully productive."
+      },
+      {
+        "t": "Launch two or more EC2 On-Demand Instances. Turn on auto scaling features and make the EC2 On-Demand Instances available during the next testing phase.",
+        "c": false,
+        "w": "Simply launching more On-Demand Instances with Auto Scaling increases capacity but each new instance still has to boot and load memory from cold, so it doesn't reduce individual launch time."
+      }
+    ],
+    "explain": "When you launch EC2 On-Demand Instances with hibernation turned on, the instances can be hibernated and resumed rather than terminated and launched."
+  },
+  {
+    "src_num": 586,
+    "q": "A company has five organizational units (OUs) as part of its organization in AWS Organizations. Each OU correlates to the five businesses that the company owns. The company's research and development (R&D) business is separating from the company and will need its own organization. A solutions architect creates a separate new management account for this purpose. What should the solutions architect do next in the new management account?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Have the R&D AWS account join the new organization. Make the new management account a member of the prior organization.",
+        "c": false,
+        "w": "The prior organization's existing management account cannot simply become a member of the new organization while the R&D account structure is being reorganized; account/org relationships don't work that way."
+      },
+      {
+        "t": "Invite the R&D AWS account to be part of the new organization after the R&D AWS account has left the prior organization.",
+        "c": true,
+        "w": "An AWS account can belong to only one organization at a time, so the R&D account must first leave the prior organization and then be invited to join the new organization as a standalone step."
+      },
+      {
+        "t": "Have the R&D AWS account be part of both organizations during the transition.",
+        "c": false,
+        "w": "An AWS account cannot be a member of two organizations simultaneously, so keeping it in both during the transition is not possible."
+      },
+      {
+        "t": "Create a new R&D AWS account in the new organization. Migrate resources from the prior R&D AWS account to the new R&D AWS account.",
+        "c": false,
+        "w": "Creating a brand-new R&D account and migrating all resources is far more work and risk than simply moving the existing R&D account between organizations, and isn't necessary to achieve the separation."
+      }
+    ],
+    "explain": ""
+  },
+  {
+    "src_num": 488,
+    "q": "A 4-year-old media company is using the AWS Organizations all features feature set to organize its AWS accounts. According to the company's finance team, the billing information on the member accounts must not be accessible to anyone, including the root user of the member accounts. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Add all finance team users to an IAM group. Attach an AWS managed policy named Billing to the group.",
+        "c": false,
+        "w": "Adding users to an IAM group with the Billing managed policy grants access to billing information; it does the opposite of restricting it, and it has no effect on the root user."
+      },
+      {
+        "t": "Attach an identity-based policy to deny access to the billing information to all users, including the root user.",
+        "c": false,
+        "w": "Identity-based (IAM) policies cannot restrict the root user of an account, since the root user's permissions are not governed by IAM policies in the same way."
+      },
+      {
+        "t": "Create a service control policy (SCP) to deny access to the billing information. Attach the SCP to the root organizational unit (OU).",
+        "c": true,
+        "w": "A service control policy attached to the root OU applies to every account in the organization, including restricting the root user, and can explicitly deny access to billing information organization-wide."
+      },
+      {
+        "t": "Convert from the Organizations all features feature set to the Organizations consolidated billing feature set.",
+        "c": false,
+        "w": "Consolidated billing alone does not provide the granular policy controls (like SCPs) needed to deny billing access; moving away from all features would actually remove the ability to use SCPs at all."
+      }
+    ],
+    "explain": "SCPs in AWS Organizations allow you to set fine-grained permissions and controls over what actions can be performed in member accounts.\nBy creating an SCP, you can explicitly deny access to billing information for all users, including the root user, under the specified organizational unit (OU)."
+  },
+  {
+    "src_num": 392,
+    "q": "A company wants to deploy a new public web application on AWS. The application includes a web server tier that uses Amazon EC2 instances. The application also includes a database tier that uses an Amazon RDS for MySQL DB instance. The application must be secure and accessible for global customers that have dynamic IP addresses. How should a solutions architect configure the security groups to meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Configure the security group for the web servers to allow inbound traffic on port 443 from the IP addresses of the customers. Configure the security group for the DB instance to allow inbound traffic on port 3306 from the security group of the web servers.",
+        "c": false,
+        "w": "Allowing inbound traffic from specific customer IP addresses doesn't work for customers with dynamic IPs, since those addresses can change and would require constant updates, and DB access from customer IPs is far too broad."
+      },
+      {
+        "t": "Configure the security group for the web servers to allow inbound traffic on port 443 from the IP addresses of the customers. Configure the security group for the DB instance to allow inbound traffic on port 3306 from the IP addresses of the customers.",
+        "c": false,
+        "w": "Allowing the database's security group to accept traffic from the actual IP addresses of customers is both impractical for dynamic IPs and a serious security risk, exposing the database beyond the web tier."
+      },
+      {
+        "t": "Configure the security group for the web servers to allow inbound traffic on port 443 from 0.0.0.0/0. Configure the security group for the DB instance to allow inbound traffic on port 3306 from 0.0.0.0/0.",
+        "c": false,
+        "w": "Opening the database security group to 0.0.0.0/0 on port 3306 exposes the database directly to the entire internet, which is unnecessary and insecure since only the web servers need to reach it."
+      },
+      {
+        "t": "Configure the security group for the web servers to allow inbound traffic on port 443 from 0.0.0.0/0. Configure the security group for the DB instance to allow inbound traffic on port 3306 from the security group of the web servers.",
+        "c": true,
+        "w": "Allowing port 443 from anywhere (0.0.0.0/0) on the web tier accommodates customers with dynamic IPs, while restricting the database security group to only accept traffic from the web server security group keeps the database itself inaccessible from the internet, satisfying least privilege."
+      }
+    ],
+    "explain": ""
+  },
+  {
+    "src_num": 612,
+    "q": "A company has an application that runs on Amazon EC2 instances in a private subnet. The application needs to process sensitive information from an Amazon S3 bucket. The application must not use the internet to connect to the S3 bucket. Which solution will meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Configure an internet gateway. Update the S3 bucket policy to allow access from the internet gateway. Update the application to use the new internet gateway.",
+        "c": false,
+        "w": "Configuring an internet gateway routes traffic over the public internet, which directly violates the requirement that traffic must not traverse the internet."
+      },
+      {
+        "t": "Configure a VPN connection. Update the S3 bucket policy to allow access from the VPN connection. Update the application to use the new VPN connection.",
+        "c": false,
+        "w": "A Site-to-Site VPN still ultimately connects over the public internet (even though encrypted), and setting one up for a within-AWS S3 access pattern is unnecessary and doesn't avoid internet transit."
+      },
+      {
+        "t": "Configure a VPC endpoint. Update the S3 bucket policy to allow access from the VPC endpoint. Update the application to use the new VPC endpoint.",
+        "c": true,
+        "w": "A VPC endpoint for S3 creates a private, direct path from the VPC to S3 that never leaves the AWS network, meeting the requirement without exposing traffic to the internet."
+      },
+      {
+        "t": "Configure a NAT gateway. Update the S3 bucket policy to allow access from the NAT gateway. Update the application to use the new NAT gateway.",
+        "c": false,
+        "w": "A Route 53 private hosted zone only affects DNS resolution; it doesn't change the actual network path traffic takes to reach S3."
+      }
+    ],
+    "explain": "VPC Endpoint for S3: A VPC endpoint allows you to privately connect your VPC to supported AWS services, including Amazon S3, without traversing the public internet. This ensures secure and direct access to S3 from within your VPC."
+  },
+  {
+    "src_num": 309,
+    "q": "A solutions architect needs to optimize storage costs. The solutions architect must identify any Amazon S3 buckets that are no longer being accessed or are rarely accessed. Which solution will accomplish this goal with the LEAST operational overhead?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Analyze bucket access patterns by using the S3 Storage Lens dashboard for advanced activity metrics.",
+        "c": true,
+        "w": "S3 Storage Lens provides built-in, pre-aggregated activity metrics (including access patterns) across all buckets and accounts without needing to configure any additional metrics, logging, or analysis pipeline."
+      },
+      {
+        "t": "Turn on the Amazon CloudWatch BucketSizeBytes metric for buckets. Analyze bucket access patterns by using the metrics data with Amazon Athena.",
+        "c": false,
+        "w": "Turning on the BucketSizeBytes CloudWatch metric only reports storage size over time, not access frequency, and then requires building a separate Athena analysis pipeline, adding operational work."
+      },
+      {
+        "t": "Analyze bucket access patterns by using the S3 dashboard in the AWS Management Console.",
+        "c": false,
+        "w": "The basic S3 console dashboard offers only simple usage and storage summaries; it lacks the detailed activity metrics needed to identify rarely or never accessed buckets."
+      },
+      {
+        "t": "Turn on AWS CloudTrail for S3 object monitoring. Analyze bucket access patterns by using CloudTrail logs that are integrated with Amazon CloudWatch Logs.",
+        "c": false,
+        "w": "Enabling CloudTrail object-level logging and analyzing it via CloudWatch Logs requires ongoing log storage costs and custom query/analysis work, which is considerably more operational overhead than using a built-in dashboard."
+      }
+    ],
+    "explain": "S3 Storage Lens is a feature of Amazon S3 that provides a detailed set of reports and metrics to help you understand, analyze, and optimize your storage usage.\nThe S3 Storage Lens dashboard provides advanced activity metrics, including insights into access patterns, data transfer, and other storage-related activities.\nBy using the S3 Storage Lens dashboard, you can easily identify buckets that are no longer being accessed or are rarely accessed without the need for additional setup or operational overhead."
+  },
+  {
+    "src_num": 49,
+    "q": "A company stores call transcript files on a monthly basis. Users access the files randomly within 1 year of the call, but users access the files infrequently after 1 year. The company wants to optimize its solution by giving users the ability to query and retrieve files that are less than 1-yearold as quickly as possible. A delay in retrieving older files is acceptable. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Store individual files in Amazon S3 Intelligent-Tiering. Use S3 Lifecycle policies to move the files to S3 Glacier Flexible Retrieval after 1 year. Query and retrieve the files that are in Amazon S3 by using Amazon Athena. Query and retrieve the files that are in S3 Glacier by using S3 Glacier Select.",
+        "c": true,
+        "w": "S3 Intelligent-Tiering keeps recent (less than 1 year old) files quickly queryable, and Athena can query data directly in S3, while a lifecycle rule moves older files to Glacier Flexible Retrieval where S3 Glacier Select can still query them, matching the 'fast for recent, delay OK for old' requirement cost-effectively."
+      },
+      {
+        "t": "Store individual files with tags in Amazon S3 Glacier Instant Retrieval. Query the tags to retrieve the files from S3 Glacier Instant Retrieval.",
+        "c": false,
+        "w": "Tagging files and storing them in S3 Glacier Instant Retrieval from the start keeps millisecond retrieval available even for year-old files the company no longer needs fast access to, which costs more than necessary for data where a delay is acceptable after a year."
+      },
+      {
+        "t": "Store individual files in Amazon S3 Standard storage. Use S3 Lifecycle policies to move the files to S3 Glacier Deep Archive after 1 year. Store search metadata in Amazon RDS. Query the files from Amazon RDS. Retrieve the files from S3 Glacier Deep Archive.",
+        "c": false,
+        "w": "Standard storage transitioning to Glacier Deep Archive, plus a separate RDS metadata index, adds an extra database component to maintain and Deep Archive's long (hours) retrieval time doesn't align well with needing fast retrieval for files under a year old."
+      },
+      {
+        "t": "Store individual files with tags in Amazon S3 Standard storage. Store search metadata for each archive in Amazon S3 Standard storage. Use S3 Lifecycle policies to move the files to S3 Glacier Instant Retrieval after 1 year. Query and retrieve the files by searching for metadata from Amazon S3.",
+        "c": false,
+        "w": "Keeping files and metadata together in S3 Standard with tags, then moving to Glacier Instant Retrieval after a year, spends more on the S3 Standard tier for the first year and relies on tag-based search which is less efficient than using Athena for querying."
+      }
+    ],
+    "explain": "S3 Intelligent-Tiering is the ideal storage class for data with unknown, changing, or unpredictable access patterns, independent of object size or retention period. You can use S3 Intelligent-Tiering as the default storage class for virtually any workload, especially data lakes, data analytics, new applications, and user-generated content."
+  },
+  {
+    "src_num": 630,
+    "q": "A solutions architect is creating a data processing job that runs once daily and can take up to 2 hours to complete. If the job is interrupted, it has to restart from the beginning. How should the solutions architect address this issue in the MOST cost-effective manner?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create a script that runs locally on an Amazon EC2 Reserved Instance that is triggered by a cron job.",
+        "c": false,
+        "w": "Running a cron-triggered script on a Reserved Instance means paying for a reserved, always-available EC2 instance even though the job only runs once a day for up to 2 hours, and a local crash still has to restart from scratch with no managed retry."
+      },
+      {
+        "t": "Use an Amazon Elastic Container Service (Amazon ECS) Fargate task triggered by an Amazon EventBridge scheduled event.",
+        "c": true,
+        "w": "ECS Fargate is serverless, so you pay only while the task runs (up to the ~2-hour job), and Fargate tasks triggered by an EventBridge scheduled event can be configured to retry/restart on failure without maintaining any idle infrastructure."
+      },
+      {
+        "t": "Create an AWS Lambda function triggered by an Amazon EventBridge scheduled event.",
+        "c": false,
+        "w": "AWS Lambda has a maximum execution duration of 15 minutes, which is far shorter than the job's 'up to 2 hours' runtime, so Lambda cannot run this job at all."
+      },
+      {
+        "t": "Use an Amazon Elastic Container Service (Amazon ECS) task running on Amazon EC2 triggered by an Amazon EventBridge scheduled event.",
+        "c": false,
+        "w": "Running the task on ECS with EC2 requires provisioning, patching, and paying for the underlying EC2 instances continuously (or scaling them up/down), which is more operational overhead and cost than a serverless Fargate task."
+      }
+    ],
+    "explain": "ECS Fargate is a serverless container service, and it abstracts away the underlying infrastructure. With Fargate, you don't need to manage or provision EC2 instances directly. You can run containers without worrying about the infrastructure, and AWS takes care of scaling and resource allocation."
+  },
+  {
+    "src_num": 231,
+    "q": "An application runs on an Amazon EC2 instance that has an Elastic IP address in VPC A. The application requires access to a database in VPC B. Both VPCs are in the same AWS account. Which solution will provide the required access MOST securely?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create a DB instance security group that allows all traffic from the public IP address of the application server in VPC A.",
+        "c": false,
+        "w": "Allowing all traffic from the application server's public IP address exposes the database to traffic sourced from the internet-facing identity of the EC2 instance rather than keeping communication private within AWS."
+      },
+      {
+        "t": "Launch an EC2 instance with an Elastic IP address into VPC B. Proxy all requests through the new EC2 instance.",
+        "c": false,
+        "w": "Launching an intermediary EC2 instance with its own Elastic IP to proxy traffic adds an unnecessary public-facing component and an extra point of failure/management instead of using a native private connection."
+      },
+      {
+        "t": "Configure a VPC peering connection between VPC A and VPC B.",
+        "c": true,
+        "w": "A VPC peering connection lets instances in VPC A and VPC B communicate directly using private IP addresses, without exposing the database or traversing the public internet, which is the most secure option."
+      },
+      {
+        "t": "Make the DB instance publicly accessible. Assign a public IP address to the DB instance.",
+        "c": false,
+        "w": "Making the DB instance publicly accessible with a public IP exposes the database directly to the internet, which is far less secure than keeping traffic entirely private."
+      }
+    ],
+    "explain": "VPC peering allows direct connectivity between two VPCs. This solution enables communication between instances in VPC A and VPC B using private IP addresses. It does not require public IP addresses or the exposure of databases to the public internet."
+  },
+  {
+    "src_num": 307,
+    "q": "A company that primarily runs its application servers on premises has decided to migrate to AWS. The company wants to minimize its need to scale its Internet Small Computer Systems Interface (iSCSI) storage on premises. The company wants only its recently accessed data to remain stored locally. Which AWS solution should the company use to meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "AWS Storage Gateway Volume Gateway cached volumes",
+        "c": true,
+        "w": "Cached volumes store the full dataset durably in Amazon S3 while caching only the most recently accessed data locally, which minimizes the on-premises storage footprint the company needs to scale."
+      },
+      {
+        "t": "AWS Storage Gateway Volume Gateway stored volumes",
+        "c": false,
+        "w": "Stored volumes keep the entire dataset on-premises (with asynchronous backup to S3), so they do not reduce the local storage footprint the company is trying to minimize."
+      },
+      {
+        "t": "Amazon S3 File Gateway",
+        "c": false,
+        "w": "S3 File Gateway presents a file (NFS/SMB) interface backed by S3, not an iSCSI block interface, so it would not meet the company's iSCSI storage requirement."
+      },
+      {
+        "t": "AWS Storage Gateway Tape Gateway",
+        "c": false,
+        "w": "Tape Gateway presents a virtual tape library interface for backup software, which doesn't provide iSCSI block storage for active application use."
+      }
+    ],
+    "explain": "AWS Storage Gateway provides a hybrid cloud storage service that enables on-premises applications to use cloud storage seamlessly.\nVolume Gateway offers two modes: cached volumes and stored volumes.\nIn the cached volumes mode, the entire dataset is stored in Amazon S3, and the most frequently accessed data is cached on-premises. This allows the company to keep recently accessed data locally, minimizing the need for on-premises scaling."
+  },
+  {
+    "src_num": 294,
+    "q": "An application that is hosted on Amazon EC2 instances needs to access an Amazon S3 bucket. Traffic must not traverse the internet. How should a solutions architect configure access to meet these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Set up a gateway VPC endpoint for Amazon S3 in the VPC.",
+        "c": true,
+        "w": "A gateway VPC endpoint for S3 adds a route in the VPC route table that sends S3-bound traffic directly within the AWS network, never touching the public internet."
+      },
+      {
+        "t": "Establish an AWS Site-to-Site VPN connection between the VPC and the S3 bucket.",
+        "c": false,
+        "w": "A Site-to-Site VPN connects a VPC to an on-premises network over the internet (via an encrypted tunnel); it isn't the mechanism used to reach an AWS service like S3 privately from within the same VPC."
+      },
+      {
+        "t": "Create a private hosted zone by using Amazon Route 53.",
+        "c": false,
+        "w": "A private hosted zone in Route 53 only affects how DNS names resolve; it doesn't by itself create a private network path for traffic destined for S3."
+      },
+      {
+        "t": "Configure the EC2 instances to use a NAT gateway to access the S3 bucket.",
+        "c": false,
+        "w": "A NAT gateway lets private-subnet instances initiate outbound connections, but that traffic to S3's public endpoints still traverses the internet via the NAT gateway, which doesn't meet the 'no internet' requirement."
+      }
+    ],
+    "explain": "A VPC endpoint for Amazon S3 allows you to connect your VPC directly to S3 without traversing the internet. This ensures that traffic between your EC2 instances and the S3 bucket stays within the AWS network."
+  },
+  {
+    "src_num": 262,
+    "q": "A company plans to use Amazon ElastiCache for its multi-tier web application. A solutions architect creates a Cache VPC for the ElastiCache cluster and an App VPC for the application’s Amazon EC2 instances. Both VPCs are in the us-east-1 Region. The solutions architect must implement a solution to provide the application’s EC2 instances with access to the ElastiCache cluster. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create a Transit VPC. Update the VPC route tables in the Cache VPC and the App VPC to route traffic through the Transit VPC. Configure an inbound rule for the Transit VPC’s security group to allow inbound connection from the application’s security group.",
+        "c": false,
+        "w": "A Transit VPC introduces an extra hop and additional infrastructure (and cost) to manage, which is unnecessary when a direct VPC peering connection between just two VPCs will do, and this option also misconfigures the inbound rule on the wrong security group."
+      },
+      {
+        "t": "Create a peering connection between the VPCs. Add a route table entry for the peering connection in both VPCs. Configure an inbound rule for the peering connection’s security group to allow inbound connection from the application’s security group.",
+        "c": false,
+        "w": "The security group rule needs to be applied to the ElastiCache cluster's own security group (the actual resource being accessed), not to a security group associated with the peering connection itself, since peering connections don't have an attached security group to configure this way."
+      },
+      {
+        "t": "Create a Transit VPC. Update the VPC route tables in the Cache VPC and the App VPC to route traffic through the Transit VPC. Configure an inbound rule for the ElastiCache cluster's security group to allow inbound connection from the application’s security group.",
+        "c": false,
+        "w": "Using a Transit VPC here adds unneeded cost and complexity for connecting just two VPCs, even though this option does correctly target the ElastiCache cluster's security group for the inbound rule."
+      },
+      {
+        "t": "Create a peering connection between the VPCs. Add a route table entry for the peering connection in both VPCs. Configure an inbound rule for the ElastiCache cluster’s security group to allow inbound connection from the application’s security group.",
+        "c": true,
+        "w": "A direct VPC peering connection with route table entries in both VPCs, plus an inbound rule on the ElastiCache cluster's own security group allowing traffic from the application's security group, is the simplest and most cost-effective way to grant exactly the access needed."
+      }
+    ],
+    "explain": "Creating a peering connection allows communication between the Cache VPC and the App VPC.\n\nAdding a route table entry in both VPCs for the peering connection ensures that traffic can flow between them.\nInbound Rule in ElastiCache Security Group:\n\nConfiguring an inbound rule in the ElastiCache cluster's security group to allow connections from the application's security group enables the EC2 instances in the App VPC to access the ElastiCache cluster."
+  },
+  {
+    "src_num": 534,
+    "q": "A company wants to build a logging solution for its multiple AWS accounts. The company currently stores the logs from all accounts in a centralized account. The company has created an Amazon S3 bucket in the centralized account to store the VPC flow logs and AWS CloudTrail logs. All logs must be highly available for 30 days for frequent analysis, retained for an additional 60 days for backup purposes, and deleted 90 days after creation. Which solution will meet these requirements MOST cost-effectively?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Transition objects to the S3 Glacier Flexible Retrieval storage class 30 days after creation. Write an expiration action that directs Amazon S3 to delete objects after 90 days.",
+        "c": false,
+        "w": "Transitioning straight to Glacier Flexible Retrieval at 30 days sacrifices the fast, millisecond access that 'highly available for frequent analysis' implies logs might still occasionally need shortly after the initial 30-day window, compared to a cheaper but still fast tier like Standard-IA."
+      },
+      {
+        "t": "Transition objects to the S3 Standard-Infrequent Access (S3 Standard-IA) storage class 30 days after creation. Move all objects to the S3 Glacier Flexible Retrieval storage class after 90 days. Write an expiration action that directs Amazon S3 to delete objects after 90 days.",
+        "c": true,
+        "w": "Moving objects to S3 Standard-IA after 30 days keeps them quickly retrievable and highly available at lower cost for the next 60-day backup window, then transitioning to Glacier and expiring at 90 days matches the 30/60/90-day pattern in the requirements cost-effectively."
+      },
+      {
+        "t": "Transition objects to the S3 Standard storage class 30 days after creation. Write an expiration action that directs Amazon S3 to delete objects after 90 days.",
+        "c": false,
+        "w": "Transitioning objects to the S3 Standard storage class (which is what they are already stored in) after 30 days provides no cost savings at all for the backup period, since it doesn't move the data to any cheaper tier."
+      },
+      {
+        "t": "Transition objects to the S3 One Zone-Infrequent Access (S3 One Zone-IA) storage class 30 days after creation. Move all objects to the S3 Glacier Flexible Retrieval storage class after 90 days. Write an expiration action that directs Amazon S3 to delete objects after 90 days.",
+        "c": false,
+        "w": "One Zone-IA stores data in only a single Availability Zone, which reduces durability/availability guarantees and is a poor fit for logs that must remain highly available, compared to a multi-AZ tier like Standard-IA."
+      }
+    ],
+    "explain": ""
+  },
+  {
+    "src_num": 274,
+    "q": "A company runs an application on Amazon EC2 instances. The company needs to implement a disaster recovery (DR) solution for the application. The DR solution needs to have a recovery time objective (RTO) of less than 4 hours. The DR solution also needs to use the fewest possible AWS resources during normal operations. Which solution will meet these requirements in the MOST operationally efficient way?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create Amazon Machine Images (AMIs) to back up the EC2 instances. Copy the AMIs to a secondary AWS Region. Automate infrastructure deployment in the secondary Region by using AWS CloudFormation.",
+        "c": true,
+        "w": "Copying AMIs to a secondary Region and using AWS CloudFormation to automate deployment there keeps ongoing resource usage minimal (no live secondary environment) while still enabling a fast, repeatable, well-tested deployment to meet the 4-hour RTO."
+      },
+      {
+        "t": "Create Amazon Machine Images (AMIs) to back up the EC2 instances. Copy the AMIs to a secondary AWS Region. Automate infrastructure deployment in the secondary Region by using AWS Lambda and custom scripts.",
+        "c": false,
+        "w": "Relying on custom Lambda functions and scripts to automate infrastructure deployment is less standardized and harder to maintain and test reliably than AWS CloudFormation, increasing operational risk during an actual DR event."
+      },
+      {
+        "t": "Launch EC2 instances in a secondary Availability Zone. Keep the EC2 instances in the secondary Availability Zone active at all times.",
+        "c": false,
+        "w": "A secondary Availability Zone that is kept active at all times does not protect against a Region-wide disaster, and keeping it active continuously also uses more resources than necessary during normal operations."
+      },
+      {
+        "t": "Launch EC2 instances in a secondary AWS Region. Keep the EC2 instances in the secondary Region active at all times.",
+        "c": false,
+        "w": "Keeping EC2 instances active at all times in a secondary Region (a hot standby/multi-site approach) would meet the RTO easily but uses far more resources during normal operations than necessary, failing the 'fewest resources' requirement."
+      }
+    ],
+    "explain": "By creating Amazon Machine Images (AMIs) to back up the EC2 instances and copying them to a secondary AWS Region, the company can ensure that they have a reliable backup in the event of a disaster. By using AWS CloudFormation to automate infrastructure deployment in the secondary Region, the company can minimize the amount of time and effort required to set up the DR solution."
+  },
+  {
+    "src_num": 389,
+    "q": "A company has a large dataset for its online advertising business stored in an Amazon RDS for MySQL DB instance in a single Availability Zone. The company wants business reporting queries to run without impacting the write operations to the production DB instance. Which solution meets these requirements?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Scale up the DB instance to a larger instance type to handle write operations and queries.",
+        "c": false,
+        "w": "Scaling up the DB instance type increases overall capacity but write and read operations still compete for the same instance's resources, so reporting queries would still be able to impact write performance."
+      },
+      {
+        "t": "Deploy the DB instance in multiple Availability Zones to process the business reporting queries.",
+        "c": false,
+        "w": "A Multi-AZ standby replica is for failover, not for serving read traffic in the standard synchronous replication mode, so reporting queries cannot be offloaded to it without impacting the primary."
+      },
+      {
+        "t": "Scale out the DB instance horizontally by placing it behind an Elastic Load Balancer.",
+        "c": false,
+        "w": "Amazon RDS instances are not placed behind an Elastic Load Balancer to scale horizontally; ELBs balance traffic across compute instances like EC2, not database read/write capacity."
+      },
+      {
+        "t": "Deploy RDS read replicas to process the business reporting queries.",
+        "c": true,
+        "w": "RDS read replicas are asynchronous copies of the primary database that can serve read-only reporting queries, offloading that workload so it doesn't contend with the write operations on the production instance."
+      }
+    ],
+    "explain": "Amazon RDS provides the ability to create read replicas of a source DB instance. Read replicas can be used to offload read traffic from the primary (write) DB instance, allowing you to scale read operations horizontally. This is particularly useful for scenarios where you want to run reporting queries without affecting the write performance of the production DB instance."
+  },
+  {
+    "src_num": 403,
+    "q": "A developer has an application that uses an AWS Lambda function to upload files to Amazon S3 and needs the required permissions to perform the task. The developer already has an IAM user with valid IAM credentials required for Amazon S3. What should a solutions architect do to grant the permissions?",
+    "multi": false,
+    "n_correct": 1,
+    "o": [
+      {
+        "t": "Create an IAM execution role with the required permissions and attach the IAM role to the Lambda function.",
+        "c": true,
+        "w": "Attaching an IAM execution role with only the required S3 permissions to the Lambda function follows least privilege and lets Lambda securely assume temporary credentials automatically, with no long-lived secrets to manage."
+      },
+      {
+        "t": "Create a signed request using the existing IAM credentials in the Lambda function.",
+        "c": false,
+        "w": "Signing requests with the developer's existing long-term IAM user credentials means embedding static credentials inside the function, which is a security risk and not how Lambda is meant to authenticate to AWS services."
+      },
+      {
+        "t": "Create a new IAM user and use the existing IAM credentials in the Lambda function.",
+        "c": false,
+        "w": "Creating another IAM user and hardcoding its credentials into the function again relies on long-term static credentials baked into code, which is harder to rotate and secure than an execution role."
+      },
+      {
+        "t": "Add required IAM permissions in the resource policy of the Lambda function.",
+        "c": false,
+        "w": "The Lambda resource policy controls which principals are allowed to invoke the function, not what AWS resources the function's code is permitted to access, so it cannot grant S3 upload permissions."
+      }
+    ],
+    "explain": "o grant the necessary permissions to an AWS Lambda function to upload files to Amazon S3, a solutions architect should create an IAM execution role with the required permissions and attach the IAM role to the Lambda function. This approach follows the principle of least privilege and ensures that the Lambda function can only access the resources it needs to perform its specific task."
+  }
+]
